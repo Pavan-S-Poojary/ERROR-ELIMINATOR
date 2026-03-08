@@ -16,7 +16,7 @@ text-align:center;
 overflow-x:hidden;
 }
 
-/* CYBER GRID BACKGROUND */
+/* CYBER GRID */
 
 .grid{
 position:fixed;
@@ -35,16 +35,12 @@ z-index:-3;
 100%{transform:translateY(40px);}
 }
 
-/* PARTICLES */
-
 canvas{
 position:fixed;
 top:0;
 left:0;
 z-index:-2;
 }
-
-/* TITLES */
 
 .mainTitle{
 font-size:60px;
@@ -62,8 +58,6 @@ color:#00ffcc;
 text-shadow:0 0 15px #00ffcc;
 }
 
-/* PANEL */
-
 .container{
 background:rgba(255,255,255,0.05);
 backdrop-filter:blur(12px);
@@ -75,8 +69,6 @@ max-width:520px;
 margin:40px auto;
 box-shadow:0 0 35px #00ffff;
 }
-
-/* BUTTONS */
 
 button{
 width:320px;
@@ -101,15 +93,11 @@ box-shadow:0 12px 25px #00ffff,0 0 45px #00ffff;
 background:linear-gradient(145deg,#ff0000,#a30000);
 }
 
-/* TIMER */
-
 #timer{
 font-size:28px;
 margin-top:20px;
 color:#00ffff;
 }
-
-/* FLASH TIMER */
 
 .flash{
 animation:flash 1s infinite;
@@ -121,8 +109,6 @@ color:red;
 50%{opacity:0.4;}
 100%{opacity:1;}
 }
-
-/* PROGRESS BAR */
 
 .progress{
 width:80%;
@@ -139,8 +125,6 @@ width:100%;
 background:#00ffff;
 }
 
-/* FORM */
-
 iframe{
 margin-top:20px;
 border:none;
@@ -148,8 +132,6 @@ width:100%;
 height:850px;
 display:none;
 }
-
-/* RESULT PANEL */
 
 #judgePanel{
 display:none;
@@ -195,13 +177,9 @@ document.getElementById("timer").innerHTML="⏳ "+m+"m "+s+"s";
 let percent=(timeLeft/totalTime)*100;
 document.getElementById("bar").style.width=percent+"%";
 
-/* LAST 2 MINUTES FLASH */
-
 if(timeLeft<=120){
 document.getElementById("timer").classList.add("flash");
 }
-
-/* TIME OVER WARNING */
 
 if(timeLeft<=0){
 
@@ -225,6 +203,12 @@ clearInterval(timer);
 
 function startExam(link,setName){
 
+if(!document.fullscreenElement){
+document.documentElement.requestFullscreen().catch(err=>{
+console.log("Fullscreen blocked",err);
+});
+}
+
 localStorage.setItem("startTime",Date.now());
 localStorage.setItem("setName",setName);
 
@@ -237,9 +221,21 @@ document.getElementById("examFrame").src=link;
 timeLeft = totalTime;
 startTimer();
 
-document.documentElement.requestFullscreen();
+}
+
+/* FULLSCREEN EXIT DETECTION */
+
+document.addEventListener("fullscreenchange",function(){
+
+if(!document.fullscreenElement){
+
+alert("You exited fullscreen. The exam will be terminated.");
+
+finishExam();
 
 }
+
+});
 
 /* FINISH EXAM */
 
@@ -268,8 +264,6 @@ document.getElementById("judgeTime").innerHTML=
 "Time Taken: "+minutes+" minutes "+seconds+" seconds";
 
 document.getElementById("menu").style.display="block";
-
-/* RESET TIMER */
 
 timeLeft = totalTime;
 document.getElementById("timer").innerHTML="";
@@ -350,8 +344,6 @@ TECH YUVA 2026 • ERROR ELIMINATOR
 </div>
 
 <script>
-
-/* PARTICLE BACKGROUND */
 
 let canvas=document.getElementById("particles");
 let ctx=canvas.getContext("2d");
