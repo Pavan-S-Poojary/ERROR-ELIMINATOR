@@ -35,7 +35,7 @@ z-index:-1;
 font-size:60px;
 margin-top:30px;
 color:#00ffff;
-text-shadow:0 0 25px #00ffff;
+text-shadow:0 0 30px #00ffff;
 }
 
 .subTitle{
@@ -44,10 +44,10 @@ color:#00ffcc;
 margin-bottom:20px;
 }
 
-/* PANEL */
+/* MENU */
 
 .container{
-background:rgba(0,0,0,0.7);
+background:rgba(0,0,0,0.75);
 padding:35px;
 border-radius:20px;
 width:420px;
@@ -55,7 +55,7 @@ margin:auto;
 box-shadow:0 0 30px #00ffff;
 }
 
-/* BUTTONS */
+/* BUTTON */
 
 button{
 width:280px;
@@ -67,7 +67,7 @@ border-radius:10px;
 background:#00bfff;
 color:white;
 cursor:pointer;
-box-shadow:0 0 10px #00bfff;
+box-shadow:0 0 12px #00bfff;
 }
 
 button:hover{
@@ -113,17 +113,59 @@ height:850px;
 display:none;
 }
 
-/* RESULT PANEL */
+/* RESULT POPUP */
 
 #judgePanel{
+
 display:none;
-margin:40px auto;
-padding:30px;
-border-radius:15px;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+padding:40px;
+border-radius:20px;
 background:#001f1f;
-border:1px solid #00ffff;
-width:400px;
-box-shadow:0 0 20px #00ffff;
+border:2px solid #00ffff;
+width:420px;
+box-shadow:0 0 40px #00ffff;
+z-index:9999;
+
+animation:glowPop 0.8s ease;
+}
+
+/* SUCCESS ANIMATION */
+
+.success{
+font-size:28px;
+color:#00ff88;
+margin-bottom:15px;
+animation:glow 1.5s infinite alternate;
+}
+
+@keyframes glow{
+
+from{
+text-shadow:0 0 10px #00ff88;
+}
+
+to{
+text-shadow:0 0 30px #00ff88,0 0 50px #00ff88;
+}
+
+}
+
+@keyframes glowPop{
+
+0%{
+transform:translate(-50%,-60%) scale(0.8);
+opacity:0;
+}
+
+100%{
+transform:translate(-50%,-50%) scale(1);
+opacity:1;
+}
+
 }
 
 .footer{
@@ -165,7 +207,7 @@ clearInterval(timer);
 
 document.getElementById("timer").innerHTML="⏰ TIME OVER";
 
-alert("Time over. Submit form and click EXIT.");
+alert("Time over. Submit the form then click EXIT.");
 
 }
 
@@ -207,7 +249,7 @@ finishExam();
 
 }
 
-/* TAB SWITCH DETECTION */
+/* TAB SWITCH */
 
 document.addEventListener("visibilitychange",function(){
 
@@ -251,8 +293,16 @@ function finishExam(){
 clearInterval(timer);
 clearInterval(monitor);
 
+/* hide form */
+
 document.getElementById("examFrame").src="";
 document.getElementById("examFrame").style.display="none";
+
+/* scroll top */
+
+window.scrollTo(0,0);
+
+/* calculate time */
 
 let start=localStorage.getItem("startTime");
 let setName=localStorage.getItem("setName");
@@ -262,6 +312,8 @@ let total=Math.floor((Date.now()-start)/1000);
 let m=Math.floor(total/60);
 let s=total%60;
 
+/* show popup */
+
 document.getElementById("judgePanel").style.display="block";
 
 document.getElementById("judgeSet").innerHTML="Set: "+setName;
@@ -270,7 +322,7 @@ document.getElementById("judgeTime").innerHTML="Time Taken: "+m+" minutes "+s+" 
 
 }
 
-/* NEXT PARTICIPANT */
+/* RESET */
 
 function resetExam(){
 
@@ -325,6 +377,8 @@ timeLeft=totalTime;
 </div>
 
 <div id="judgePanel">
+
+<div class="success">✔ SUCCESS</div>
 
 <h2>Participant Finished</h2>
 
