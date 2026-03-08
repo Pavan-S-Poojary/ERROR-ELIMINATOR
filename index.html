@@ -16,7 +16,7 @@ text-align:center;
 overflow-x:hidden;
 }
 
-/* GRID BACKGROUND */
+/* GRID */
 
 .grid{
 position:fixed;
@@ -47,8 +47,8 @@ margin-bottom:20px;
 /* MENU */
 
 .container{
-background:rgba(0,0,0,0.75);
-padding:35px;
+background:rgba(0,0,0,0.8);
+padding:30px;
 border-radius:20px;
 width:420px;
 margin:auto;
@@ -75,10 +75,6 @@ background:#00ffff;
 color:black;
 }
 
-.exitBtn{
-background:red;
-}
-
 /* TIMER */
 
 #timer{
@@ -103,7 +99,7 @@ width:100%;
 background:#00ffff;
 }
 
-/* FORM */
+/* GOOGLE FORM */
 
 iframe{
 margin-top:20px;
@@ -113,58 +109,66 @@ height:850px;
 display:none;
 }
 
-/* RESULT POPUP */
+/* RESULT OVERLAY */
 
-#judgePanel{
+#resultOverlay{
 
 display:none;
+
 position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-padding:40px;
-border-radius:20px;
-background:#001f1f;
-border:2px solid #00ffff;
-width:420px;
-box-shadow:0 0 40px #00ffff;
+
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:black;
+
 z-index:9999;
 
-animation:glowPop 0.8s ease;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+
 }
 
-/* SUCCESS ANIMATION */
+/* RESULT CARD */
+
+.resultCard{
+
+background:#001f1f;
+padding:40px;
+border-radius:20px;
+border:2px solid #00ffff;
+box-shadow:0 0 40px #00ffff;
+width:420px;
+
+}
+
+/* SUCCESS */
 
 .success{
+
 font-size:28px;
 color:#00ff88;
 margin-bottom:15px;
 animation:glow 1.5s infinite alternate;
+
 }
 
 @keyframes glow{
 
-from{
-text-shadow:0 0 10px #00ff88;
-}
+from{ text-shadow:0 0 10px #00ff88; }
 
-to{
-text-shadow:0 0 30px #00ff88,0 0 50px #00ff88;
-}
+to{ text-shadow:0 0 30px #00ff88,0 0 50px #00ff88; }
 
 }
 
-@keyframes glowPop{
+.exitBtn{
 
-0%{
-transform:translate(-50%,-60%) scale(0.8);
-opacity:0;
-}
-
-100%{
-transform:translate(-50%,-50%) scale(1);
-opacity:1;
-}
+background:red;
 
 }
 
@@ -199,6 +203,7 @@ let s=timeLeft%60;
 document.getElementById("timer").innerHTML="⏳ "+m+"m "+s+"s";
 
 let percent=(timeLeft/totalTime)*100;
+
 document.getElementById("bar").style.width=percent+"%";
 
 if(timeLeft<=0){
@@ -207,7 +212,7 @@ clearInterval(timer);
 
 document.getElementById("timer").innerHTML="⏰ TIME OVER";
 
-alert("Time over. Submit the form then click EXIT.");
+alert("Time over. Submit form and click EXIT.");
 
 }
 
@@ -257,7 +262,7 @@ if(document.hidden){
 
 warnings++;
 
-alert("Tab switch detected!");
+alert("Tab switching detected!");
 
 if(warnings>=3){
 
@@ -271,20 +276,10 @@ finishExam();
 
 });
 
-/* SECURITY */
+/* BLOCK COPY */
 
 document.addEventListener("copy",e=>e.preventDefault());
 document.addEventListener("contextmenu",e=>e.preventDefault());
-
-document.onkeydown=function(e){
-
-if(e.key==="F12") return false;
-
-if(e.ctrlKey && e.shiftKey && e.key==="I") return false;
-
-if(e.ctrlKey && e.key==="u") return false;
-
-};
 
 /* FINISH EXAM */
 
@@ -298,10 +293,6 @@ clearInterval(monitor);
 document.getElementById("examFrame").src="";
 document.getElementById("examFrame").style.display="none";
 
-/* scroll top */
-
-window.scrollTo(0,0);
-
 /* calculate time */
 
 let start=localStorage.getItem("startTime");
@@ -312,9 +303,9 @@ let total=Math.floor((Date.now()-start)/1000);
 let m=Math.floor(total/60);
 let s=total%60;
 
-/* show popup */
+/* show overlay */
 
-document.getElementById("judgePanel").style.display="block";
+document.getElementById("resultOverlay").style.display="flex";
 
 document.getElementById("judgeSet").innerHTML="Set: "+setName;
 
@@ -330,7 +321,7 @@ if(document.fullscreenElement){
 document.exitFullscreen();
 }
 
-document.getElementById("judgePanel").style.display="none";
+document.getElementById("resultOverlay").style.display="none";
 
 document.getElementById("menu").style.display="block";
 
@@ -376,14 +367,19 @@ timeLeft=totalTime;
 <div class="bar" id="bar"></div>
 </div>
 
-<div id="judgePanel">
+<iframe id="examFrame"></iframe>
+
+<!-- RESULT SCREEN -->
+
+<div id="resultOverlay">
+
+<div class="resultCard">
 
 <div class="success">✔ SUCCESS</div>
 
 <h2>Participant Finished</h2>
 
 <div id="judgeSet"></div>
-
 <div id="judgeTime"></div>
 
 <p style="color:#00ff88;">Status: Submitted</p>
@@ -392,7 +388,7 @@ timeLeft=totalTime;
 
 </div>
 
-<iframe id="examFrame"></iframe>
+</div>
 
 <div class="footer">
 TECH YUVA 2026 • ERROR ELIMINATOR
