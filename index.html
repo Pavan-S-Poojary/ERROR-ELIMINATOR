@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>TECH YUVA – ERROR ELIMINATOR</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+box-sizing:border-box;
+transition:.25s;
+}
+
+body{
+margin:0;
+font-family:'Orbitron',sans-serif;
+background:radial-gradient(circle,#001a1a,#000);
+color:white;
+text-align:center;
+overflow-x:hidden;
+}
+
+/* TITLE */
+
+.mainTitle{
+font-size:60px;
+margin-top:30px;
+color:#00ffff;
+text-shadow:0 0 30px #00ffff;
+}
+
+.subTitle{
+font-size:28px;
+color:#00ffcc;
+}
+
+/* MENU PANEL */
+
+.container{
+background:rgba(0,0,0,0.75);
+padding:30px;
+border-radius:20px;
+width:420px;
+margin:30px auto;
+box-shadow:0 0 35px #00ffff;
+}
+
+/* BUTTON */
+
+button{
+width:260px;
+padding:14px;
+margin:10px;
+border:none;
+border-radius:10px;
+background:linear-gradient(135deg,#00bfff,#007bff);
+color:white;
+cursor:pointer;
+box-shadow:0 6px 15px rgba(0,191,255,0.5);
+}
+
+button:hover{
+transform:translateY(-3px);
+background:linear-gradient(135deg,#00ffff,#0099ff);
+}
+
+/* EXIT BUTTON */
+
+#exitTop{
+position:fixed;
+top:15px;
+right:20px;
+padding:10px 18px;
+background:red;
+color:white;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+display:none;
+z-index:1000;
+}
+
+/* TIMER */
+
+#timer{
+font-size:24px;
+margin-top:10px;
+color:#ff4444;
+}
+
+/* PROGRESS BAR */
+
+.progress{
+width:70%;
+height:8px;
+background:#222;
+margin:10px auto;
+border-radius:10px;
+}
+
+.bar{
+height:100%;
+width:100%;
+background:linear-gradient(90deg,#00ffff,#007bff);
+transition:width 1s linear;
+}
+
+/* FORM CENTER WRAPPER */
+
+.formWrapper{
+display:flex;
+justify-content:center;
+width:100%;
+overflow:hidden;
+}
+
+/* GOOGLE FORM */
+
+iframe{
+width:1000px;
+height:1100px;
+border:none;
+display:none;
+transform:scale(1.15);
+transform-origin:top center;
+}
+
+/* RESULT OVERLAY */
+
+#resultOverlay{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+z-index:9999;
+justify-content:center;
+align-items:center;
+}
+
+/* RESULT CARD */
+
+.resultCard{
+background:#001f1f;
+padding:40px;
+border-radius:20px;
+border:2px solid #00ffff;
+box-shadow:0 0 40px #00ffff;
+width:420px;
+}
+
+/* SUCCESS */
+
+.success{
+font-size:30px;
+color:#00ff88;
+margin-bottom:10px;
+text-shadow:0 0 25px #00ff88;
+}
+
+/* EXIT CONFIRM */
+
+#confirmPopup{
+display:none;
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+background:#001f1f;
+padding:30px;
+border-radius:15px;
+border:2px solid #00ffff;
+box-shadow:0 0 30px #00ffff;
+z-index:20000;
+}
+
+.popupButtons button{
+width:120px;
+}
+
+</style>
+
+<script>
+
+let timer=null
+let monitor=null
+
+let totalTime=1800
+let timeLeft=totalTime
+
+let warnings=0
+
+/* TIMER */
+
+function startTimer(){
+
+timer=setInterval(function(){
+
+timeLeft--
+
+let m=Math.floor(timeLeft/60)
+let s=timeLeft%60
+
+document.getElementById("timer").innerHTML="⏳ "+m+"m "+s+"s"
+
+let percent=(timeLeft/totalTime)*100
+document.getElementById("bar").style.width=percent+"%"
+
+if(timeLeft<=0){
+
+clearInterval(timer)
+
+document.getElementById("timer").innerHTML="⏰ TIME OVER"
+
+alert("Time Over! Submit form then press EXIT")
+
+}
+
+},1000)
+
+}
+
+/* START EXAM */
+
+function startExam(link,setName){
+
+document.documentElement.requestFullscreen()
+
+localStorage.setItem("startTime",Date.now())
+localStorage.setItem("setName",setName)
+
+document.getElementById("menu").style.display="none"
+
+document.getElementById("examFrame").style.display="block"
+document.getElementById("examFrame").src=link
+
+document.getElementById("exitTop").style.display="block"
+
+timeLeft=totalTime
+warnings=0
+
+startTimer()
+
+monitor=setInterval(function(){
+
+if(!document.fullscreenElement){
+
+alert("Fullscreen exited")
+
+finishExam()
+
+}
+
+},1000)
+
+}
+
+/* TAB SWITCH */
+
+document.addEventListener("visibilitychange",function(){
+
+if(document.hidden){
+
+warnings++
+
+alert("Tab switch detected")
+
+if(warnings>=3){
+
+alert("Too many violations")
+
+finishExam()
+
+}
+
+}
+
+})
+
+/* BLOCK COPY */
+
+document.addEventListener("copy",e=>e.preventDefault())
+document.addEventListener("contextmenu",e=>e.preventDefault())
+
+/* EXIT CONFIRM */
+
+function confirmExit(){
+
+document.getElementById("confirmPopup").style.display="block"
+
+}
+
+function cancelExit(){
+
+document.getElementById("confirmPopup").style.display="none"
+
+}
+
+function continueExit(){
+
+document.getElementById("confirmPopup").style.display="none"
+
+finishExam()
+
+}
+
+/* FINISH EXAM */
+
+function finishExam(){
+
+clearInterval(timer)
+clearInterval(monitor)
+
+document.getElementById("examFrame").style.display="none"
+document.getElementById("examFrame").src=""
+
+document.getElementById("exitTop").style.display="none"
+
+let start=localStorage.getItem("startTime")
+let setName=localStorage.getItem("setName")
+
+let total=Math.floor((Date.now()-start)/1000)
+
+let m=Math.floor(total/60)
+let s=total%60
+
+document.getElementById("resultOverlay").style.display="flex"
+
+document.getElementById("judgeSet").innerHTML="Set: "+setName
+document.getElementById("judgeTime").innerHTML="Time Taken: "+m+" minutes "+s+" seconds"
+
+}
+
+/* RESET FOR NEXT USER */
+
+function resetExam(){
+
+if(document.fullscreenElement){
+document.exitFullscreen()
+}
+
+document.getElementById("resultOverlay").style.display="none"
+
+document.getElementById("menu").style.display="block"
+
+document.getElementById("timer").innerHTML=""
+document.getElementById("bar").style.width="100%"
+
+warnings=0
+timeLeft=totalTime
+
+}
+
+</script>
+
+</head>
+
+<body>
+
+<button id="exitTop" onclick="confirmExit()">EXIT</button>
+
+<div class="mainTitle">TECH YUVA</div>
+<div class="subTitle">ERROR ELIMINATOR</div>
+
+<div class="container" id="menu">
+
+<h3>Select Question Set</h3>
+
+<button onclick="startExam('https://forms.gle/TGmx7fRmLXAAmxJw9','C SET 1')">C SET 1</button>
+<button onclick="startExam('https://forms.gle/JoRWxNeU5rLgMCpj7','C SET 2')">C SET 2</button>
+<button onclick="startExam('https://forms.gle/xMRg8z3pRh4hbcxZA','C SET 3')">C SET 3</button>
+
+<button onclick="startExam('https://forms.gle/SdAx4pXXXGxoqtRi8','PYTHON SET 1')">PYTHON SET 1</button>
+<button onclick="startExam('https://forms.gle/4cuF6Z5vGWpmfsTJA','PYTHON SET 2')">PYTHON SET 2</button>
+<button onclick="startExam('https://forms.gle/FdiW5KQBpfsgBNyEA','PYTHON SET 3')">PYTHON SET 3</button>
+
+<button onclick="startExam('https://forms.gle/cxm8gjXCgaqfKcc3A','JAVA SET')">JAVA SET</button>
+
+</div>
+
+<div id="timer"></div>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<div class="formWrapper">
+<iframe id="examFrame"></iframe>
+</div>
+
+<!-- RESULT -->
+
+<div id="resultOverlay">
+
+<div class="resultCard">
+
+<div class="success">✔ SUCCESS</div>
+
+<h2>Participant Finished</h2>
+
+<div id="judgeSet"></div>
+<div id="judgeTime"></div>
+
+<p style="color:#00ff88;">Status: Submitted</p>
+
+<button onclick="resetExam()">NEXT PARTICIPANT</button>
+
+</div>
+
+</div>
+
+<!-- EXIT POPUP -->
+
+<div id="confirmPopup">
+
+<h3>Exit Exam?</h3>
+
+<p>Continue will terminate the exam.</p>
+
+<div class="popupButtons">
+
+<button onclick="continueExit()">Continue</button>
+<button onclick="cancelExit()">Back</button>
+
+</div>
+
+</div>
+
+</body>
+</html>
