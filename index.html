@@ -13,10 +13,9 @@ font-family:'Orbitron',sans-serif;
 background:black;
 color:white;
 text-align:center;
-overflow-x:hidden;
 }
 
-/* GRID */
+/* GRID BACKGROUND */
 
 .grid{
 position:fixed;
@@ -35,13 +34,12 @@ z-index:-1;
 font-size:60px;
 margin-top:30px;
 color:#00ffff;
-text-shadow:0 0 30px #00ffff;
+text-shadow:0 0 25px #00ffff;
 }
 
 .subTitle{
 font-size:28px;
 color:#00ffcc;
-margin-bottom:20px;
 }
 
 /* MENU */
@@ -51,23 +49,23 @@ background:rgba(0,0,0,0.8);
 padding:30px;
 border-radius:20px;
 width:420px;
-margin:auto;
+margin:30px auto;
 box-shadow:0 0 30px #00ffff;
 }
 
-/* BUTTON */
+/* BUTTONS */
 
 button{
-width:280px;
-padding:15px;
+width:260px;
+padding:14px;
 margin:10px;
-font-size:15px;
+font-size:14px;
 border:none;
-border-radius:10px;
+border-radius:8px;
 background:#00bfff;
 color:white;
 cursor:pointer;
-box-shadow:0 0 12px #00bfff;
+box-shadow:0 0 10px #00bfff;
 }
 
 button:hover{
@@ -75,11 +73,37 @@ background:#00ffff;
 color:black;
 }
 
+/* FLOATING EXIT BUTTON */
+
+#exitTop{
+
+position:fixed;
+top:15px;
+right:20px;
+
+padding:10px 18px;
+
+background:red;
+color:white;
+
+border:none;
+border-radius:6px;
+
+font-weight:bold;
+
+cursor:pointer;
+
+z-index:10000;
+
+display:none;
+
+}
+
 /* TIMER */
 
 #timer{
-font-size:26px;
-margin-top:20px;
+font-size:24px;
+margin-top:10px;
 color:#ff4444;
 }
 
@@ -102,10 +126,9 @@ background:#00ffff;
 /* GOOGLE FORM */
 
 iframe{
-margin-top:20px;
-border:none;
 width:100%;
 height:850px;
+border:none;
 display:none;
 }
 
@@ -116,7 +139,6 @@ display:none;
 display:none;
 
 position:fixed;
-
 top:0;
 left:0;
 
@@ -127,8 +149,6 @@ background:black;
 
 z-index:9999;
 
-display:flex;
-flex-direction:column;
 justify-content:center;
 align-items:center;
 
@@ -147,13 +167,11 @@ width:420px;
 
 }
 
-/* SUCCESS */
-
 .success{
 
 font-size:28px;
 color:#00ff88;
-margin-bottom:15px;
+margin-bottom:10px;
 animation:glow 1.5s infinite alternate;
 
 }
@@ -166,28 +184,17 @@ to{ text-shadow:0 0 30px #00ff88,0 0 50px #00ff88; }
 
 }
 
-.exitBtn{
-
-background:red;
-
-}
-
-.footer{
-margin-top:30px;
-color:#aaa;
-}
-
 </style>
 
 <script>
 
-let timer=null;
-let monitor=null;
+let timer=null
+let monitor=null
 
-let totalTime=1800;
-let timeLeft=totalTime;
+let totalTime=1800
+let timeLeft=totalTime
 
-let warnings=0;
+let warnings=0
 
 /* TIMER */
 
@@ -195,28 +202,27 @@ function startTimer(){
 
 timer=setInterval(function(){
 
-timeLeft--;
+timeLeft--
 
-let m=Math.floor(timeLeft/60);
-let s=timeLeft%60;
+let m=Math.floor(timeLeft/60)
+let s=timeLeft%60
 
-document.getElementById("timer").innerHTML="⏳ "+m+"m "+s+"s";
+document.getElementById("timer").innerHTML="⏳ "+m+"m "+s+"s"
 
-let percent=(timeLeft/totalTime)*100;
-
-document.getElementById("bar").style.width=percent+"%";
+let percent=(timeLeft/totalTime)*100
+document.getElementById("bar").style.width=percent+"%"
 
 if(timeLeft<=0){
 
-clearInterval(timer);
+clearInterval(timer)
 
-document.getElementById("timer").innerHTML="⏰ TIME OVER";
+document.getElementById("timer").innerHTML="⏰ TIME OVER"
 
-alert("Time over. Submit form and click EXIT.");
+alert("Time Over! Submit form then press EXIT.")
 
 }
 
-},1000);
+},1000)
 
 }
 
@@ -224,33 +230,34 @@ alert("Time over. Submit form and click EXIT.");
 
 function startExam(link,setName){
 
-document.documentElement.requestFullscreen();
+document.documentElement.requestFullscreen()
 
-localStorage.setItem("startTime",Date.now());
-localStorage.setItem("setName",setName);
+localStorage.setItem("startTime",Date.now())
+localStorage.setItem("setName",setName)
 
-document.getElementById("menu").style.display="none";
+document.getElementById("menu").style.display="none"
 
-document.getElementById("examFrame").style.display="block";
-document.getElementById("examFrame").src=link;
+document.getElementById("examFrame").style.display="block"
+document.getElementById("examFrame").src=link
 
-timeLeft=totalTime;
+document.getElementById("exitTop").style.display="block"
 
-startTimer();
+timeLeft=totalTime
+warnings=0
 
-/* FULLSCREEN MONITOR */
+startTimer()
 
 monitor=setInterval(function(){
 
 if(!document.fullscreenElement){
 
-alert("Fullscreen exited. Exam terminated.");
+alert("Fullscreen exited. Exam terminated.")
 
-finishExam();
+finishExam()
 
 }
 
-},1000);
+},1000)
 
 }
 
@@ -260,77 +267,71 @@ document.addEventListener("visibilitychange",function(){
 
 if(document.hidden){
 
-warnings++;
+warnings++
 
-alert("Tab switching detected!");
+alert("Tab switch detected!")
 
 if(warnings>=3){
 
-alert("Too many violations.");
+alert("Too many violations")
 
-finishExam();
-
-}
+finishExam()
 
 }
 
-});
+}
 
-/* BLOCK COPY */
+})
 
-document.addEventListener("copy",e=>e.preventDefault());
-document.addEventListener("contextmenu",e=>e.preventDefault());
+/* SECURITY */
+
+document.addEventListener("copy",e=>e.preventDefault())
+document.addEventListener("contextmenu",e=>e.preventDefault())
 
 /* FINISH EXAM */
 
 function finishExam(){
 
-clearInterval(timer);
-clearInterval(monitor);
+clearInterval(timer)
+clearInterval(monitor)
 
-/* hide form */
+document.getElementById("examFrame").style.display="none"
+document.getElementById("examFrame").src=""
 
-document.getElementById("examFrame").src="";
-document.getElementById("examFrame").style.display="none";
+document.getElementById("exitTop").style.display="none"
 
-/* calculate time */
+let start=localStorage.getItem("startTime")
+let setName=localStorage.getItem("setName")
 
-let start=localStorage.getItem("startTime");
-let setName=localStorage.getItem("setName");
+let total=Math.floor((Date.now()-start)/1000)
 
-let total=Math.floor((Date.now()-start)/1000);
+let m=Math.floor(total/60)
+let s=total%60
 
-let m=Math.floor(total/60);
-let s=total%60;
+document.getElementById("resultOverlay").style.display="flex"
 
-/* show overlay */
-
-document.getElementById("resultOverlay").style.display="flex";
-
-document.getElementById("judgeSet").innerHTML="Set: "+setName;
-
-document.getElementById("judgeTime").innerHTML="Time Taken: "+m+" minutes "+s+" seconds";
+document.getElementById("judgeSet").innerHTML="Set: "+setName
+document.getElementById("judgeTime").innerHTML="Time Taken: "+m+" minutes "+s+" seconds"
 
 }
 
-/* RESET */
+/* NEXT PARTICIPANT */
 
 function resetExam(){
 
 if(document.fullscreenElement){
-document.exitFullscreen();
+document.exitFullscreen()
 }
 
-document.getElementById("resultOverlay").style.display="none";
+document.getElementById("resultOverlay").style.display="none"
 
-document.getElementById("menu").style.display="block";
+document.getElementById("menu").style.display="block"
 
-document.getElementById("timer").innerHTML="";
+document.getElementById("timer").innerHTML=""
+document.getElementById("bar").style.width="100%"
 
-document.getElementById("bar").style.width="100%";
-
-warnings=0;
-timeLeft=totalTime;
+warnings=0
+timeLeft=totalTime
 
 }
 
@@ -341,6 +342,8 @@ timeLeft=totalTime;
 <body>
 
 <div class="grid"></div>
+
+<button id="exitTop" onclick="finishExam()">EXIT</button>
 
 <div class="mainTitle">TECH YUVA</div>
 <div class="subTitle">ERROR ELIMINATOR</div>
@@ -369,8 +372,6 @@ timeLeft=totalTime;
 
 <iframe id="examFrame"></iframe>
 
-<!-- RESULT SCREEN -->
-
 <div id="resultOverlay">
 
 <div class="resultCard">
@@ -384,14 +385,10 @@ timeLeft=totalTime;
 
 <p style="color:#00ff88;">Status: Submitted</p>
 
-<button class="exitBtn" onclick="resetExam()">NEXT PARTICIPANT</button>
+<button onclick="resetExam()">NEXT PARTICIPANT</button>
 
 </div>
 
-</div>
-
-<div class="footer">
-TECH YUVA 2026 • ERROR ELIMINATOR
 </div>
 
 </body>
