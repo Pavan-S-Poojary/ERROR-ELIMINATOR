@@ -160,8 +160,14 @@ color:#aaa;
 <script>
 
 let timer=null;
+let fullscreenMonitor=null;
+let warnings=0;
+let maxWarnings=3;
+
 let totalTime=1800;
 let timeLeft=totalTime;
+
+/* TIMER */
 
 function startTimer(){
 
@@ -187,7 +193,7 @@ clearInterval(timer);
 
 document.getElementById("timer").innerHTML="⏰ TIME OVER";
 
-alert("Time is over. Please submit the Google Form and click EXIT AFTER SUBMIT.");
+alert("Time is over. Submit the form and click EXIT.");
 
 }
 
@@ -195,58 +201,90 @@ alert("Time is over. Please submit the Google Form and click EXIT AFTER SUBMIT."
 
 }
 
-function stopTimer(){
-clearInterval(timer);
-}
-
 /* START EXAM */
 
 function startExam(link,setName){
 
-if(!document.fullscreenElement){
-document.documentElement.requestFullscreen().catch(err=>{
-console.log("Fullscreen blocked",err);
-});
-}
+document.documentElement.requestFullscreen();
 
 localStorage.setItem("startTime",Date.now());
 localStorage.setItem("setName",setName);
 
 document.getElementById("menu").style.display="none";
-document.getElementById("judgePanel").style.display="none";
-
 document.getElementById("examFrame").style.display="block";
 document.getElementById("examFrame").src=link;
 
-timeLeft = totalTime;
+timeLeft=totalTime;
+
 startTimer();
 
-}
+/* FULLSCREEN MONITOR */
 
-/* FULLSCREEN EXIT DETECTION */
-
-document.addEventListener("fullscreenchange",function(){
+fullscreenMonitor=setInterval(function(){
 
 if(!document.fullscreenElement){
 
-alert("You exited fullscreen. The exam will be terminated.");
+alert("Fullscreen exited. Exam terminated.");
 
 finishExam();
 
 }
 
+},1000);
+
+}
+
+/* TAB SWITCH DETECTION */
+
+document.addEventListener("visibilitychange",function(){
+
+if(document.hidden){
+
+warnings++;
+
+alert("Tab switching detected! Warning "+warnings+"/3");
+
+if(warnings>=maxWarnings){
+
+alert("Too many violations. Exam terminated.");
+
+finishExam();
+
+}
+
+}
+
 });
+
+/* DEVTOOLS BLOCK */
+
+document.onkeydown=function(e){
+
+if(e.key==="F12") return false;
+
+if(e.ctrlKey && e.shiftKey && e.key==="I") return false;
+
+if(e.ctrlKey && e.key==="u") return false;
+
+};
+
+/* COPY BLOCK */
+
+document.addEventListener("copy",e=>e.preventDefault());
+
+/* RIGHT CLICK BLOCK */
+
+document.addEventListener("contextmenu",e=>e.preventDefault());
 
 /* FINISH EXAM */
 
 function finishExam(){
 
-stopTimer();
+clearInterval(timer);
+clearInterval(fullscreenMonitor);
 
 document.getElementById("examFrame").src="";
 document.getElementById("examFrame").style.display="none";
-
-window.scrollTo(0,0);
 
 let start=localStorage.getItem("startTime");
 let setName=localStorage.getItem("setName");
@@ -263,26 +301,13 @@ document.getElementById("judgeSet").innerHTML="Set: "+setName;
 document.getElementById("judgeTime").innerHTML=
 "Time Taken: "+minutes+" minutes "+seconds+" seconds";
 
-document.getElementById("menu").style.display="block";
+timeLeft=totalTime;
+warnings=0;
 
-timeLeft = totalTime;
 document.getElementById("timer").innerHTML="";
 document.getElementById("bar").style.width="100%";
-document.getElementById("timer").classList.remove("flash");
 
 }
-
-/* SECURITY */
-
-document.addEventListener("copy",e=>e.preventDefault());
-document.addEventListener("contextmenu",e=>e.preventDefault());
-
-document.addEventListener("visibilitychange",function(){
-if(document.hidden){
-alert("Tab switching detected!");
-finishExam();
-}
-});
 
 </script>
 
@@ -291,7 +316,6 @@ finishExam();
 <body>
 
 <div class="grid"></div>
-<canvas id="particles"></canvas>
 
 <div class="mainTitle">TECH YUVA</div>
 <div class="subTitle">ERROR ELIMINATOR</div>
@@ -342,50 +366,6 @@ Status: Submitted
 <div class="footer">
 TECH YUVA 2026 • ERROR ELIMINATOR
 </div>
-
-<script>
-
-let canvas=document.getElementById("particles");
-let ctx=canvas.getContext("2d");
-
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-
-let particles=[];
-
-for(let i=0;i<120;i++){
-particles.push({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*2
-});
-}
-
-function animate(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="#00ffff";
-
-particles.forEach(p=>{
-
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-ctx.fill();
-
-p.y+=0.3;
-
-if(p.y>canvas.height)p.y=0;
-
-});
-
-requestAnimationFrame(animate);
-
-}
-
-animate();
-
-</script>
 
 </body>
 </html>
