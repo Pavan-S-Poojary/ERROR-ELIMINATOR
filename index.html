@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TECH YUVA – ERROR ELIMINATOR</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+margin:0;
+font-family:'Orbitron',sans-serif;
+background:black;
+color:white;
+text-align:center;
+overflow-x:hidden;
+}
+
+/* GRID BACKGROUND */
+
+.grid{
+position:fixed;
+width:100%;
+height:100%;
+background:
+linear-gradient(#00ffff22 1px, transparent 1px),
+linear-gradient(90deg,#00ffff22 1px, transparent 1px);
+background-size:40px 40px;
+z-index:-1;
+}
+
+/* TITLES */
+
+.mainTitle{
+font-size:60px;
+margin-top:30px;
+color:#00ffff;
+text-shadow:0 0 25px #00ffff;
+}
+
+.subTitle{
+font-size:28px;
+color:#00ffcc;
+margin-bottom:20px;
+}
+
+/* PANEL */
+
+.container{
+background:rgba(0,0,0,0.7);
+padding:35px;
+border-radius:20px;
+width:420px;
+margin:auto;
+box-shadow:0 0 30px #00ffff;
+}
+
+/* BUTTONS */
+
+button{
+width:280px;
+padding:15px;
+margin:10px;
+font-size:15px;
+border:none;
+border-radius:10px;
+background:#00bfff;
+color:white;
+cursor:pointer;
+box-shadow:0 0 10px #00bfff;
+}
+
+button:hover{
+background:#00ffff;
+color:black;
+}
+
+.exitBtn{
+background:red;
+}
+
+/* TIMER */
+
+#timer{
+font-size:26px;
+margin-top:20px;
+color:#ff4444;
+}
+
+/* PROGRESS */
+
+.progress{
+width:70%;
+height:8px;
+background:#222;
+margin:10px auto;
+border-radius:10px;
+}
+
+.bar{
+height:100%;
+width:100%;
+background:#00ffff;
+}
+
+/* FORM */
+
+iframe{
+margin-top:20px;
+border:none;
+width:100%;
+height:850px;
+display:none;
+}
+
+/* RESULT PANEL */
+
+#judgePanel{
+display:none;
+margin:40px auto;
+padding:30px;
+border-radius:15px;
+background:#001f1f;
+border:1px solid #00ffff;
+width:400px;
+box-shadow:0 0 20px #00ffff;
+}
+
+.footer{
+margin-top:30px;
+color:#aaa;
+}
+
+</style>
+
+<script>
+
+let timer=null;
+let monitor=null;
+
+let totalTime=1800;
+let timeLeft=totalTime;
+
+let warnings=0;
+
+/* TIMER */
+
+function startTimer(){
+
+timer=setInterval(function(){
+
+timeLeft--;
+
+let m=Math.floor(timeLeft/60);
+let s=timeLeft%60;
+
+document.getElementById("timer").innerHTML="⏳ "+m+"m "+s+"s";
+
+let percent=(timeLeft/totalTime)*100;
+document.getElementById("bar").style.width=percent+"%";
+
+if(timeLeft<=0){
+
+clearInterval(timer);
+
+document.getElementById("timer").innerHTML="⏰ TIME OVER";
+
+alert("Time over. Submit form and click EXIT.");
+
+}
+
+},1000);
+
+}
+
+/* START EXAM */
+
+function startExam(link,setName){
+
+document.documentElement.requestFullscreen();
+
+localStorage.setItem("startTime",Date.now());
+localStorage.setItem("setName",setName);
+
+document.getElementById("menu").style.display="none";
+
+document.getElementById("examFrame").style.display="block";
+document.getElementById("examFrame").src=link;
+
+timeLeft=totalTime;
+
+startTimer();
+
+/* FULLSCREEN MONITOR */
+
+monitor=setInterval(function(){
+
+if(!document.fullscreenElement){
+
+alert("Fullscreen exited. Exam terminated.");
+
+finishExam();
+
+}
+
+},1000);
+
+}
+
+/* TAB SWITCH DETECTION */
+
+document.addEventListener("visibilitychange",function(){
+
+if(document.hidden){
+
+warnings++;
+
+alert("Tab switch detected!");
+
+if(warnings>=3){
+
+alert("Too many violations.");
+
+finishExam();
+
+}
+
+}
+
+});
+
+/* SECURITY */
+
+document.addEventListener("copy",e=>e.preventDefault());
+document.addEventListener("contextmenu",e=>e.preventDefault());
+
+document.onkeydown=function(e){
+
+if(e.key==="F12") return false;
+
+if(e.ctrlKey && e.shiftKey && e.key==="I") return false;
+
+if(e.ctrlKey && e.key==="u") return false;
+
+};
+
+/* FINISH EXAM */
+
+function finishExam(){
+
+clearInterval(timer);
+clearInterval(monitor);
+
+document.getElementById("examFrame").src="";
+document.getElementById("examFrame").style.display="none";
+
+let start=localStorage.getItem("startTime");
+let setName=localStorage.getItem("setName");
+
+let total=Math.floor((Date.now()-start)/1000);
+
+let m=Math.floor(total/60);
+let s=total%60;
+
+document.getElementById("judgePanel").style.display="block";
+
+document.getElementById("judgeSet").innerHTML="Set: "+setName;
+
+document.getElementById("judgeTime").innerHTML="Time Taken: "+m+" minutes "+s+" seconds";
+
+}
+
+/* NEXT PARTICIPANT */
+
+function resetExam(){
+
+if(document.fullscreenElement){
+document.exitFullscreen();
+}
+
+document.getElementById("judgePanel").style.display="none";
+
+document.getElementById("menu").style.display="block";
+
+document.getElementById("timer").innerHTML="";
+
+document.getElementById("bar").style.width="100%";
+
+warnings=0;
+timeLeft=totalTime;
+
+}
+
+</script>
+
+</head>
+
+<body>
+
+<div class="grid"></div>
+
+<div class="mainTitle">TECH YUVA</div>
+<div class="subTitle">ERROR ELIMINATOR</div>
+
+<div class="container" id="menu">
+
+<h3>Select Question Set</h3>
+
+<button onclick="startExam('https://forms.gle/TGmx7fRmLXAAmxJw9','C SET 1')">C SET 1</button>
+<button onclick="startExam('https://forms.gle/JoRWxNeU5rLgMCpj7','C SET 2')">C SET 2</button>
+<button onclick="startExam('https://forms.gle/xMRg8z3pRh4hbcxZA','C SET 3')">C SET 3</button>
+
+<button onclick="startExam('https://forms.gle/SdAx4pXXXGxoqtRi8','PYTHON SET 1')">PYTHON SET 1</button>
+<button onclick="startExam('https://forms.gle/4cuF6Z5vGWpmfsTJA','PYTHON SET 2')">PYTHON SET 2</button>
+<button onclick="startExam('https://forms.gle/FdiW5KQBpfsgBNyEA','PYTHON SET 3')">PYTHON SET 3</button>
+
+<button onclick="startExam('https://forms.gle/cxm8gjXCgaqfKcc3A','JAVA SET')">JAVA SET</button>
+
+</div>
+
+<div id="timer"></div>
+
+<div class="progress">
+<div class="bar" id="bar"></div>
+</div>
+
+<div id="judgePanel">
+
+<h2>Participant Finished</h2>
+
+<div id="judgeSet"></div>
+
+<div id="judgeTime"></div>
+
+<p style="color:#00ff88;">Status: Submitted</p>
+
+<button class="exitBtn" onclick="resetExam()">NEXT PARTICIPANT</button>
+
+</div>
+
+<iframe id="examFrame"></iframe>
+
+<div class="footer">
+TECH YUVA 2026 • ERROR ELIMINATOR
+</div>
+
+</body>
+</html>
